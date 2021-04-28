@@ -12,7 +12,7 @@ endPoints = nan(size(G.Edges,1), 3);
 radii = nan(size(G.Edges,1),1);
 
 % factor for visualisation purpose during dev, should be 1 in the end
-fact = 10; 
+fact = 1; 
 
 % Go through the edges to get start and end coordinates + radius
 for i = 1 : size(G.Edges, 1)
