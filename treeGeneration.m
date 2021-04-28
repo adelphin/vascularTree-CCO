@@ -14,7 +14,7 @@ function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, 
 % represent the branches
 % ADD NODES AND EDGES DESCRIPTION
 % ----------------------------------
-
+warning('off');
 %% Hardcoded parameters
 % initiate a max number of tries to place a new point to avoid infinite loops
 maxTries = 1000;
@@ -26,19 +26,21 @@ nClosest = 1; % will be 5 or 10 in the future
 %% Initiate graph
 G = graph;
 
+
 %% create perfusion node
+G = addnode(G, 'n0');
+G.Nodes.Coord{1}=perfPosition;
 
-% G = addnode(G, perfPosition, ...)
 
-%% add first terminal node
+%% add first terminal node and first edge
 
 % we might need a function that gets a random point in a defined space
 % here the point can be anywhere in the volume but that might not be true
 % for further use
 coord = createRandCoord(spaceDimensions);
-% G = addnode(G, coord, ...)
-% G = addedge...
-
+G = addnode(G, 'n1');
+G.Nodes.Coord{2}=coord;
+G = addVascEdge(G, 'n0', 'n1');
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
@@ -50,23 +52,26 @@ while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
     %end
     
     % compute distance to mid-branches
-    % distances = pdist2(coord, G.Edges(:,'midPoint'));
+    distances = pdist2(coord, G.Edges.middle);
 
     % remove points that are too close to branches
     % distances = distances(distances>Lmin);
     
     % keep only the nClosest branches (or less if less than nClosest
     % branches are available)
-    % [sortedDistances, sortingIdx] = sort(distances);
-    % closestBranchesIdx = sortingIdx(1:min(numel(sortingIdx, nClosest));
+    [sortedDistances, sortingIdx] = sort(distances);
+    closestBranchesIdx = sortingIdx(1:min(numel(sortingIdx), nClosest));
     
     % loop on these branches
     score = inf;
     for i = 1:numel(closestBranchesIdx)
         % create a temp G
         % tmpG = G;
-        % tmpG = addnode(G, coord,...);
-        % tmpG = addedge...
+        n = numnodes(G);
+        tmpG = addnode(G,['n',num2str(n)]);
+        tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
+        edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
+        tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
         
         % check for collision
         
@@ -74,7 +79,7 @@ while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
         % [tempG, tmpScore] = updateTree(tempG);
         % for the moment:
         bestG = tmpG;
-        score = 0;
+        tmpScore = 0;
         if tmpScore < score
             bestG = tmpG;
             score = tmpScore;
@@ -85,7 +90,7 @@ while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
     G = bestG;
     
     % Go into bifurcation position optimization
-    G = optimizeBifurcation(G);
+    %G = optimizeBifurcation(G);
     
     % We successfully added a new node! Reset try counter and go for next
     % node
