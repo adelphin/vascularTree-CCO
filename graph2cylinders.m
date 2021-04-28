@@ -16,8 +16,10 @@ fact = 10;
 
 % Go through the edges to get start and end coordinates + radius
 for i = 1 : size(G.Edges, 1)
-    startPoints(i,:) = fact * [G.Nodes{G.Edges.EndNodes(i,1), 'X'}, G.Nodes{G.Edges.EndNodes(i,1), 'Y'}, G.Nodes{G.Edges.EndNodes(i,1), 'Z'}];
-    endPoints(i,:) = fact * [G.Nodes{G.Edges.EndNodes(i,2), 'X'}, G.Nodes{G.Edges.EndNodes(i,2), 'Y'}, G.Nodes{G.Edges.EndNodes(i,2), 'Z'}];
+    idx1 = find(strcmp(G.Nodes.Name, G.Edges.EndNodes{i,1}));  
+    idx2 = find(strcmp(G.Nodes.Name, G.Edges.EndNodes{i,2}));  
+    startPoints(i,:) = fact * [G.Nodes.Coord{idx1}(1), G.Nodes.Coord{idx1}(2), G.Nodes.Coord{idx1}(3)];
+    endPoints(i,:) = fact * [G.Nodes.Coord{idx2}(1), G.Nodes.Coord{idx2}(2), G.Nodes.Coord{idx2}(3)];
     radii(i) = G.Edges.r(i);
 end
 
