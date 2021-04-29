@@ -3,21 +3,33 @@ function G = branchNode(G, edgeName, nodeName)
 %Connects nodeName to the middle of edgeName
 %Deletes the old edge and creates the three new ones 
 
-idx = find(strcmp(G.Edges.Name, edgeName));   %returns the edge's row number in G.Edges
-old_target = G.Edges.EndNodes{idx,2};         %str format 'n[...]'
-old_source = G.Edges.EndNodes{idx,1};
-n = numnodes(G);
-N = num2str(n);
+idxEdge = find(strcmp(G.Edges.Name, edgeName));   %returns the edge's row number in G.Edges
+nameOldSource = G.Edges.EndNodes{idxEdge,1};%str format 'n[...]'
+nameOldTarget = G.Edges.EndNodes{idxEdge,2};
+idxOldSource = find(strcmp(G.Nodes.Name, nameOldSource));
+idxOldTarget = find(strcmp(G.Nodes.Name, nameOldTarget));
+
+[G, midName] = addVascNode(G, G.Edges.middle{idxEdge}, 0);
+
+% n = numnodes(G);
+% N = num2str(n);
 % N = num2str(numnodes(G)+1);
 % n = str2num(N);
-midName=['n' N];                              %assignment of a str as Name for the node to come
 
-G = addnode(G,midName);
-G.Nodes.Coord{n+1}= G.Edges.middle(idx,:);
 
-G = rmedge(G, idx);                           %remove the old one
-G = addVascEdge(G, old_source, midName);
-G = addVascEdge(G, midName, old_target);
+
+% midName=['n' N];                              %assignment of a str as Name for the node to come
+
+% G = addnode(G,midName);
+% G.Nodes.Coord{n+1}= G.Edges.middle(idxEdge,:);
+
+G = rmedge(G, idxEdge);                           %remove the old one
+% need to remove child from parent node
+idxFormerChild = find(strcmp(G.Nodes{idxOldSource, 'childrenNodes'}, G.Nodes.Name{idxOldTarget}));
+G.Nodes{idxOldSource, 'childrenNodes'}{idxFormerChild} = '';
+
+G = addVascEdge(G, nameOldSource, midName);
+G = addVascEdge(G, midName, nameOldTarget);
 G = addVascEdge(G, midName, nodeName);
 
 end
