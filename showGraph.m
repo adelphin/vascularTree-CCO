@@ -10,6 +10,11 @@ Z = 300;
 
 
 %% 
-G = treeGeneration([X, Y, Z], [X/2,Y/2,Z], 1, 1, 1, 30, 1);
+G = treeGeneration([X, Y, Z], [X/2,Y/2,Z], 1, 1, 1, 100, 1);
+
+%%
+
+G.Edges.r(:) = linspace(5,1,numedges(G));
+%%
 cyl = graph2cylinders(G);
 [BinaryMat] = binarycyl3D(X, Y, Z, cyl.startPoints, cyl.endPoints, cyl.radii);

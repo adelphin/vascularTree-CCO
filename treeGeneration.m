@@ -24,12 +24,13 @@ nClosest = 1; % will be 5 or 10 in the future
 
 
 %% Initiate graph
-G = graph;
+G = digraph;
 
 
 %% create perfusion node
-G = addnode(G, 'n0');
-G.Nodes.Coord{1}=perfPosition;
+G = addVascNode(G, perfPosition, 0, 'n0');
+% G = addnode(G, 'n0');
+% G.Nodes.Coord{1}=perfPosition;
 
 
 %% add first terminal node and first edge
@@ -38,12 +39,13 @@ G.Nodes.Coord{1}=perfPosition;
 % here the point can be anywhere in the volume but that might not be true
 % for further use
 coord = createRandCoord(spaceDimensions);
-G = addnode(G, 'n1');
-G.Nodes.Coord{2}=coord;
+G = addVascNode(G, coord);
+% G = addnode(G, 'n1');
+% G.Nodes.Coord{2}=coord;
 G = addVascEdge(G, 'n0', 'n1');
 %% Loop over number of required terminal nodes
 nTries = 0;
-while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
+while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     nTries = nTries+1;
     coord = createRandCoord(spaceDimensions);
     % Check if not too close from other nodes / branch (compare with  Lmin)
@@ -52,10 +54,12 @@ while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
     %end
     
     % compute distance to mid-branches
-    distances = pdist2(coord, G.Edges.middle);
+    distances = pdist2(coord, cell2mat(G.Edges.middle));
 
     % remove points that are too close to branches
     % distances = distances(distances>Lmin);
+    
+    
     
     % keep only the nClosest branches (or less if less than nClosest
     % branches are available)
@@ -65,13 +69,17 @@ while (size(G.Nodes, 1) < Nterm && nTries <= maxTries)
     % loop on these branches
     score = inf;
     for i = 1:numel(closestBranchesIdx)
+%         cyl = graph2cylinders(G);
+%         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
         % create a temp G
         % tmpG = G;
-        n = numnodes(G);
-        tmpG = addnode(G,['n',num2str(n)]);
-        tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
+        [tmpG, candidateNodeName] = addVascNode(G, coord);
+%         n = numnodes(G);
+%         tmpG = addnode(G,['n',num2str(n)]);
+%         tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
         edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-        tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
+%         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
+        tmpG=branchNode(tmpG, edgeName, candidateNodeName);
         
         % check for collision
         
