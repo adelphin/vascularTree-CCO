@@ -53,56 +53,48 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     % continue % ends this while iteration and passes to the next
     %end
     
-    % compute distance to mid-branches
-    distances = pdist2(coord, cell2mat(G.Edges.middle));
+    closestBranchesIdx = WhosClose(G,coord, nClosest,Lmin);
+    if closestBranchesIdx == 0
+        continue
+    else 
+        % loop on these branches
+        score = inf;
+        for i = 1:numel(closestBranchesIdx)
+    %         cyl = graph2cylinders(G);
+    %         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
+            % create a temp G
+            % tmpG = G;
+            [tmpG, candidateNodeName] = addVascNode(G, coord);
+    %         n = numnodes(G);
+    %         tmpG = addnode(G,['n',num2str(n)]);
+    %         tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
+            edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
+    %         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
+            tmpG=branchNode(tmpG, edgeName, candidateNodeName);
 
-    % remove points that are too close to branches
-    % distances = distances(distances>Lmin);
-    
-    
-    
-    % keep only the nClosest branches (or less if less than nClosest
-    % branches are available)
-    [sortedDistances, sortingIdx] = sort(distances);
-    closestBranchesIdx = sortingIdx(1:min(numel(sortingIdx), nClosest));
-    
-    % loop on these branches
-    score = inf;
-    for i = 1:numel(closestBranchesIdx)
-%         cyl = graph2cylinders(G);
-%         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
-        % create a temp G
-        % tmpG = G;
-        [tmpG, candidateNodeName] = addVascNode(G, coord);
-%         n = numnodes(G);
-%         tmpG = addnode(G,['n',num2str(n)]);
-%         tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
-        edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-%         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
-        tmpG=branchNode(tmpG, edgeName, candidateNodeName);
-        
-        % check for collision
-        
-        % Go up and down the tree to compute a score to minimize (volume?)
-        % [tempG, tmpScore] = updateTree(tempG);
-        % for the moment:
-        bestG = tmpG;
-        tmpScore = 0;
-        if tmpScore < score
+            % check for collision
+
+            % Go up and down the tree to compute a score to minimize (volume?)
+            % [tempG, tmpScore] = updateTree(tempG);
+            % for the moment:
             bestG = tmpG;
-            score = tmpScore;
+            tmpScore = 0;
+            if tmpScore < score
+                bestG = tmpG;
+                score = tmpScore;
+            end
         end
+
+        % There we should have found the best candidate, so we keep it
+        G = bestG;
+
+        % Go into bifurcation position optimization
+        %G = optimizeBifurcation(G);
+
+        % We successfully added a new node! Reset try counter and go for next
+        % node
+        nTries = 0;
     end
-    
-    % There we should have found the best candidate, so we keep it
-    G = bestG;
-    
-    % Go into bifurcation position optimization
-    %G = optimizeBifurcation(G);
-    
-    % We successfully added a new node! Reset try counter and go for next
-    % node
-    nTries = 0;
 end
 
 

@@ -10,7 +10,7 @@ Z = 300;
 
 
 %% 
-G = treeGeneration([X, Y, Z], [X/2,Y/2,Z], 1, 1, 1, 100, 1);
+G = treeGeneration([X, Y, Z], [X/2,Y/2,Z], 1, 1, 1, 40, 100);
 
 %%
 
