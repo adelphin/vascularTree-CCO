@@ -1,6 +1,11 @@
-function G = addVascEdge(G, source, target)
+function G = addVascEdge(G, source, target, Q_in, R_star_edge)
 % Add an edge to graph G between nodes with name source and target
-% Initializes all the edge properties at 1
+
+if nargin < 5
+    R_star_edge = 100000;
+end
+
+visc = 0.036;
 
 %% find node indices based on their name
 idxSource = find(strcmp(G.Nodes.Name, source));  
@@ -9,12 +14,18 @@ idxTarget = find(strcmp(G.Nodes.Name, target));
 %% Add the edge to the graph and create its parameters
 EndNodes = {source, target};
 Name = {[source, '-' target]};
-r = 2;
-Q = 0;
+r = 1;
+Q = Q_in;
 R = 0;
-R_star = 0;
 P = 0;
 L = pdist2(G.Nodes.Coord{idxSource}, G.Nodes.Coord{idxTarget});
+
+if G.Nodes.isTermNode(idxTarget)
+    R_star = 8*visc*L/pi;
+else
+    R_star = R_star_edge;
+end    
+
 middle{1} = (G.Nodes.Coord{idxSource} + G.Nodes.Coord{idxTarget})/2;
 edgeProp = table(EndNodes, Name, r, Q, R, R_star, P, L, middle);
 G = addedge(G, edgeProp);
@@ -30,4 +41,5 @@ switch isempty(G.Nodes.childrenNodes{idxSource ,1})
         error('Houston, we have a situation here')
 end
 
+    
 
