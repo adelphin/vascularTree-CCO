@@ -15,6 +15,7 @@ radii = nan(size(G.Edges,1),1);
 fact = 1; 
 
 % Go through the edges to get start and end coordinates + radius
+% rfact = 1/min(G.Edges.r);
 for i = 1 : size(G.Edges, 1)
     idx1 = find(strcmp(G.Nodes.Name, G.Edges.EndNodes{i,1}));  
     idx2 = find(strcmp(G.Nodes.Name, G.Edges.EndNodes{i,2}));  
