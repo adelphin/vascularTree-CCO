@@ -1,4 +1,6 @@
 function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin)
+
+rng(1)
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -68,6 +70,8 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     [sortedDistances, sortingIdx] = sort(distances);
     closestBranchesIdx = sortingIdx(1:min(numel(sortingIdx), nClosest));
     
+    
+
     % loop on these branches
     score = inf;
     for i = 1:numel(closestBranchesIdx)
@@ -82,14 +86,8 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
         edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
 %         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
         tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP);
-        
-        % check for collision
-        
-        % Go up and down the tree to compute a score to minimize (volume?)
-        % [tempG, tmpScore] = updateTree(tempG);
-        % for the moment:
-        bestG = tmpG;
-        tmpScore = 0;
+
+        tmpScore = costFunction(tmpG);
         if tmpScore < score
             bestG = tmpG;
             score = tmpScore;
