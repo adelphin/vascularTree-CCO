@@ -1,4 +1,4 @@
-function G = branchNode(G, edgeName, nodeName)
+function G = branchNode(G, edgeName, nodeName, Qterm, visc, deltaP)
 
 %Connects nodeName to the middle of edgeName
 %Deletes the old edge and creates the three new ones 
@@ -23,14 +23,18 @@ idxOldTarget = find(strcmp(G.Nodes.Name, nameOldTarget));
 % G = addnode(G,midName);
 % G.Nodes.Coord{n+1}= G.Edges.middle(idxEdge,:);
 
+QOldEdge = G.Edges.Q(idxEdge);
+R_star_Old = G.Edges.Q(idxEdge);
 G = rmedge(G, idxEdge);                           %remove the old one
 % need to remove child from parent node
 idxFormerChild = find(strcmp(G.Nodes{idxOldSource, 'childrenNodes'}, G.Nodes.Name{idxOldTarget}));
 G.Nodes{idxOldSource, 'childrenNodes'}{idxFormerChild} = '';
 
-G = addVascEdge(G, nameOldSource, midName);
-G = addVascEdge(G, midName, nameOldTarget);
-G = addVascEdge(G, midName, nodeName);
+G = addVascEdge(G, nameOldSource, midName, QOldEdge, R_star_Old);
+G = addVascEdge(G, midName, nameOldTarget, QOldEdge, R_star_Old);
+G = addVascEdge(G, midName, nodeName, Qterm);
+
+G = updateTree(G, [midName, '-', nodeName], visc, deltaP);
 
 end
 

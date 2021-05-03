@@ -4,9 +4,9 @@ function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, 
 % Inputs:
 % - spaceDimensions = 1x3 vector, size of the target space (m), e.g. [250, 250, 750]*1e-6
 % - perfPosition = 1x3 vector, position of the perfusion point in the target space (m), e.g. [125,125,750]*1e-6
-% - Qperf = scalar, initial perfusion flux (UNIT)
-% - Pperf = scalar, initial perfusion pressure (UNIT)
-% - Pterm = scalar, terminal perfusion pressure (UNIT)
+% - Qperf = scalar, initial perfusion flux (m/h/kg)
+% - Pperf = scalar, initial perfusion pressure (mmHg)
+% - Pterm = scalar, terminal perfusion pressure (mmHg)
 % - Nterm = scalar, desired number of teminal nodes
 % - Lmin = minimal distance between a node and a branch (m), e.g. 1e-6
 % Outputs:
@@ -18,14 +18,15 @@ warning('off');
 %% Hardcoded parameters
 % initiate a max number of tries to place a new point to avoid infinite loops
 maxTries = 1000;
-
+visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
 nClosest = 1; % will be 5 or 10 in the future
 
 
 %% Initiate graph
 G = digraph;
-
+Qterm = Qperf/Nterm; %Qperf = Nterm * Qterm
+deltaP = Pperf-Pterm;
 
 %% create perfusion node
 G = addVascNode(G, perfPosition, 0, 'n0');
@@ -42,7 +43,8 @@ coord = createRandCoord(spaceDimensions);
 G = addVascNode(G, coord);
 % G = addnode(G, 'n1');
 % G.Nodes.Coord{2}=coord;
-G = addVascEdge(G, 'n0', 'n1');
+G = addVascEdge(G, 'n0', 'n1', Qterm); %Qterm, so that after N terminal nodes we have Qperf
+G = updateTree(G, 'n0-n1', visc, deltaP);
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
@@ -56,45 +58,30 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     closestBranchesIdx = WhosClose(G,coord, nClosest,Lmin);
     if closestBranchesIdx == 0
         continue
-    else 
-        % loop on these branches
-        score = inf;
-        for i = 1:numel(closestBranchesIdx)
-    %         cyl = graph2cylinders(G);
-    %         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
-            % create a temp G
-            % tmpG = G;
-            [tmpG, candidateNodeName] = addVascNode(G, coord);
-    %         n = numnodes(G);
-    %         tmpG = addnode(G,['n',num2str(n)]);
-    %         tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
-            edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-    %         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
-            tmpG=branchNode(tmpG, edgeName, candidateNodeName);
-
-            % check for collision
-
-            % Go up and down the tree to compute a score to minimize (volume?)
-            % [tempG, tmpScore] = updateTree(tempG);
-            % for the moment:
-            bestG = tmpG;
-            tmpScore = 0;
-            if tmpScore < score
-                bestG = tmpG;
-                score = tmpScore;
-            end
-        end
-
-        % There we should have found the best candidate, so we keep it
-        G = bestG;
-
-        % Go into bifurcation position optimization
-        %G = optimizeBifurcation(G);
-
-        % We successfully added a new node! Reset try counter and go for next
-        % node
-        nTries = 0;
     end
+    
+    % loop on these branches
+    score = inf;
+    for i = 1:numel(closestBranchesIdx)
+        
+        [tmpG, candidateNodeName] = addVascNode(G, coord);
+        edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
+        tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP);
+        tmpScore = costFunction(tmpG);
+        if tmpScore < score
+            bestG = tmpG;
+            score = tmpScore;
+        end
+    end
+    
+    % There we should have found the best candidate, so we keep it
+    G = bestG;
+    
+    
+    % We successfully added a new node! Reset try counter and go for next
+    % node
+    nTries = 0;
+end
 end
 
 
