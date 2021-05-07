@@ -20,7 +20,7 @@ warning('off');
 maxTries = 1000;
 visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
-nClosest = 1; % will be 5 or 10 in the future
+nClosest = 5; % will be 5 or 10 in the future
 
 
 %% Initiate graph
@@ -48,29 +48,23 @@ G = updateTree(G, 'n0-n1', visc, deltaP);
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
+    fprintf('======================== Placing terminal node %i ========================\n', sum(G.Nodes.isTermNode)+1)
     nTries = nTries+1;
     coord = createRandCoord(spaceDimensions);
+    
     % Check if not too close from other nodes / branch (compare with  Lmin)
-    % if trop près
+    % if too close
     % continue % ends this while iteration and passes to the next
     %end
+    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin);
+    if closestBranchesIdx == 0
+        continue
+    end
     
-    % compute distance to mid-branches
-    distances = pdist2(coord, cell2mat(G.Edges.middle));
-
-    % remove points that are too close to branches
-    % distances = distances(distances>Lmin);
-    
-    
-    % keep only the nClosest branches (or less if less than nClosest
-    % branches are available)
-    [sortedDistances, sortingIdx] = sort(distances);
-    closestBranchesIdx = sortingIdx(1:min(numel(sortingIdx), nClosest));
-    
-
     % loop on these branches
     score = inf;
     for i = 1:numel(closestBranchesIdx)
+        fprintf('======================== Trying branch %i / %i ========================\n', i, numel(closestBranchesIdx))
 %         cyl = graph2cylinders(G);
 %         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
         % create a temp G
