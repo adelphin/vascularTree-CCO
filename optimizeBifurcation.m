@@ -47,14 +47,17 @@ triangleCoord = [rotP1(1:2)', rotC1(1:2)', rotC2(1:2)'];
 %%
 %set useful global variable for optimization
 tmpG = G;
-setGlobalParameters(tmpG, nameNewEdge, visc, deltaP, rotParam, circleParam, Lmin);
+% setGlobalParameters(tmpG, nameNewEdge, visc, deltaP, rotParam, circleParam, Lmin);
+
+fun = @(x)moveBif(x, tmpG, nameNewEdge, visc, deltaP, rotParam);
+const = @(x)constraintCircle(x, circleParam, Lmin);
 
 options = optimoptions('fmincon');%,'Display','iter','Algorithm','sqp');%, 'OptimalityTolerance', 1e-17, 'FiniteDifferenceStepSize', 1e-7);
 problem.options = options;
 problem.solver = 'fmincon';
-problem.objective = @moveBif;
+problem.objective = fun;
 problem.x0 = circleParam.coord;
-problem.nonlcon = @constraintCircle;
+problem.nonlcon = const;
 
 x = fmincon(problem);
 

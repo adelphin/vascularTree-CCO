@@ -62,34 +62,19 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     end
     
     % loop on these branches
-    score = inf;
+%     score = inf;
+    Futures(1:numel(closestBranchesIdx)) = parallel.FevalFuture; 
     for i = 1:numel(closestBranchesIdx)
-        fprintf('======================== Trying branch %i / %i ========================\n', i, numel(closestBranchesIdx))
-%         cyl = graph2cylinders(G);
-%         [BinaryMat] = binarycyl3D(spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), cyl.startPoints, cyl.endPoints, cyl.radii);
-        % create a temp G
-        % tmpG = G;
-        [tmpG, candidateNodeName] = addVascNode(G, coord);
-%         n = numnodes(G);
-%         tmpG = addnode(G,['n',num2str(n)]);
-%         tmpG.Nodes.Coord{numnodes(tmpG)}=coord;
-        edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-%         tmpG=branchNode(tmpG, edgeName, ['n',num2str(n)]);
-        tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP, Lmin);
-
-        tmpScore = costFunction(tmpG);
-        if tmpScore < score
-            bestG = tmpG;
-            score = tmpScore;
-        end
+        Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin);
     end
     
-    % There we should have found the best candidate, so we keep it
-    G = bestG;
+    for i =1:numel(closestBranchesIdx)
+        [~, score] = Futures(i).fetchOutputs;
+    end
     
-    % Go into bifurcation position optimization
-    %G = optimizeBifurcation(G);
-    
+    [~, idxMin] = min(score);
+    [G, ~] = Futures(idxMin).fetchOutputs;
+            
     % We successfully added a new node! Reset try counter and go for next
     % node
     nTries = 0;

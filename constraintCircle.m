@@ -1,5 +1,5 @@
-function [c, ceq] = constraintCircle(x)
-    [~, ~, ~, ~, ~, circleParam, Lmin] = getGlobalParameters();
+function [c, ceq] = constraintCircle(x, circleParam, Lmin)
+%     [~, ~, ~, ~, ~, circleParam, Lmin] = getGlobalParameters();
     % bifurcation must belong to the circle centered of the circumscribed
     % circle
     % the radius is the radius of the circumscribed circle - Lmin (stay at
