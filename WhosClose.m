@@ -1,30 +1,32 @@
-function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin)
+function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,exposant)
 
-%Returns a list of the middles' indexes that are the closest to coord and 
+%Returns a list of the middles' indexes that are the closest to coord
 
     % compute distance to mid-branches
     distances = pdist2(coord, cell2mat(G.Edges.middle));
 
     % remove points that are too close to branches
-    % distances = distances(distances>Lmin);
-    
-    
     
     % keep only the nClosest branches (or less if less than nClosest
     % branches are available)
     [sortedDistances, sortingIdx] = sort(distances);
-    
+    %sortingIdx = sortingIdx(sortedDistances>Lmin);
+    %sortedDistances = sortedDistances(sortedDistances>Lmin);
+    %sortingIdx = sortingIdx(sortedDistances<Lmax);
+    sortingIdx = sortingIdx(sortedDistances>Lmin/(N_actuel^exposant));
+    sortedDistances = sortedDistances(sortedDistances>Lmin/(N_actuel^exposant));
+    sortingIdx = sortingIdx(sortedDistances<Lmax/(N_actuel^exposant));
     %Testing all sorted branches for intersection
-    sortedBool = [];
-    for i = 1:numedges(G)
-        sortedBool = [sortedBool, DoesItIntersect(G, coord, G.Edges.Name(sortingIdx(i)),Lmin)];
+    sortedBool = zeros(1,numel(sortingIdx));
+    for i = 1:numel(sortingIdx)
+        sortedBool(i) = DoesItIntersect(G, coord, G.Edges.Name(sortingIdx(i)));
     end
     %we still have to delete the zeroes in : 
-    table = [sortedDistances; sortingIdx; sortedBool];
-    table_nointersect = table(:,logical(sortedBool));
+    table = [sortingIdx; sortedBool];
+    table_nointersect = table(:,~logical(sortedBool));
     %we just keep what we need
-    if table_nointersect(2,1:min(numel(sortingIdx), nClosest)) == []
+    if isempty(table_nointersect)
         closestBranchesIdx=0;
     else
-        closestBranchesIdx = table_nointersect(2,1:min(numel(sortingIdx), nClosest));
+        closestBranchesIdx = table_nointersect(1,1:min(numel(sortingIdx), nClosest));
     end

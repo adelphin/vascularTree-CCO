@@ -1,4 +1,5 @@
-function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin)
+function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax)
+rng(1);
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -12,7 +13,8 @@ function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, 
 % Outputs:
 % - G = graph object, nodes represent the tree bifurcations, edges
 % represent the branches
-% ADD NODES AND EDGES DESCRIPTION
+% Node properties : Name, Coord, parentNode, childrenNodes, isTermNode
+% Edge properties : EndNodes, Name, r, Q, R, R_star, P, L, middle
 % ----------------------------------
 warning('off');
 %% Hardcoded parameters
@@ -21,7 +23,8 @@ maxTries = 1000;
 visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
 nClosest = 1; % will be 5 or 10 in the future
-
+%exponential decay of Lmin
+exposant = 0.4;
 
 %% Initiate graph
 G = digraph;
@@ -55,7 +58,8 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     % continue % ends this while iteration and passes to the next
     %end
     
-    closestBranchesIdx = WhosClose(G,coord, nClosest,Lmin);
+    N_actuel = sum(G.Nodes.isTermNode);
+    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,exposant);
     if closestBranchesIdx == 0
         continue
     end
