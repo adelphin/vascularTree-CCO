@@ -2,9 +2,9 @@ function coordBestBif = optimizeBifurcation(G, nameNewEdge, visc, deltaP, Lmin)
 
  
 idxBif = strcmp(G.Nodes.Name, G.Edges{strcmp(G.Edges.Name, nameNewEdge), 'EndNodes'}{1});  
-idxParent = find(strcmp(G.Nodes.Name, G.Nodes.parentNode{idxBif}));
-idxChild1 = find(strcmp(G.Nodes.Name, G.Nodes{idxBif, 'childrenNodes'}{1}));
-idxChild2 = find(strcmp(G.Nodes.Name, G.Nodes{idxBif, 'childrenNodes'}{2}));
+idxParent = strcmp(G.Nodes.Name, G.Nodes.parentNode{idxBif});
+idxChild1 = strcmp(G.Nodes.Name, G.Nodes{idxBif, 'childrenNodes'}{1});
+idxChild2 = strcmp(G.Nodes.Name, G.Nodes{idxBif, 'childrenNodes'}{2});
 
 %% Identify bifurcation plane
 % get coordinates of points involved in plane
