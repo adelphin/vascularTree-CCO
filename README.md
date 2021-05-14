@@ -9,14 +9,14 @@ This repo contains code that aims at generating vascular trees following the wor
 
 **This code was developed under Matlab2020a.** 
 
-#### Toolboxes
+### Toolboxes
 
 **The following toolboxes are highly requested but not mandatory**. Indications are provided to run the code without them)
 
 + Optimization toolbox (Deactivate: In `treeGeneration.m`, use `flagParallel = 0;`. Tree volume will not be minimized) 
 + Parallel computing toolbox (Deactivate: In `treeGeneration.m`, use `flagParallel = 0;`. Generation will be slower)
 
-#### Computational resources
+### Computational resources
 
 The code was developped on a 32Gb ram computer with an Intel Core i7 8700K (6 cores).
 
