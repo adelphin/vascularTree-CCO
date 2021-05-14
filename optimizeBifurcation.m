@@ -13,7 +13,7 @@ C1 = G.Nodes.Coord{idxChild1};
 C2 = G.Nodes.Coord{idxChild2};
 % Compute normal to plane
 normalBifPlane = cross(P1-C1, P1-C2);
-
+normalBifPlane = normalBifPlane / min(normalBifPlane);
 %% Create reference plane
 % place a point in this plane
 x1 = 0; y1 = 0; z1 = 0;

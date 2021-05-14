@@ -22,7 +22,7 @@ visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
 nClosest = 5; % will be 5 or 10 in the future
 
-
+flagParallel = 1;
 %% Initiate graph
 G = digraph;
 Qterm = Qperf/Nterm; %Qperf = Nterm * Qterm
@@ -61,20 +61,45 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
         continue
     end
     
-    % loop on these branches
-%     score = inf;
-    Futures(1:numel(closestBranchesIdx)) = parallel.FevalFuture; 
-    for i = 1:numel(closestBranchesIdx)
-        Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin);
-    end
+    if flagParallel
+        % loop on these branches
+        Futures(1:numel(closestBranchesIdx)) = parallel.FevalFuture; 
+        for i = 1:numel(closestBranchesIdx)
+            Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin);
+        end
+
+        for i =1:numel(closestBranchesIdx)
+            [~, score] = Futures(i).fetchOutputs;
+        end
+
+        [~, idxMin] = min(score);
+        [G, ~] = Futures(idxMin).fetchOutputs;
     
-    for i =1:numel(closestBranchesIdx)
-        [~, score] = Futures(i).fetchOutputs;
-    end
-    
-    [~, idxMin] = min(score);
-    [G, ~] = Futures(idxMin).fetchOutputs;
+    else
+        % loop on these branches
+        score = inf;
+        for i = 1:numel(closestBranchesIdx)
+
+            [tmpG, candidateNodeName] = addVascNode(G, coord);
+            edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
+            tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP, Lmin);
+            tmpScore = costFunction(tmpG);
+            if tmpScore < score
+                bestG = tmpG;
+                score = tmpScore;
+            end
+        end
+%         
+%         figure;
+%         coords = cell2mat(G.Nodes.Coord);
+%         rfact = 10/max(G.Edges.r);
+%         plot(G, 'XData', coords(:,1), 'YData', coords(:,2),'ZData', coords(:,3), 'LineWidth',G.Edges.r*rfact)
+
             
+        % There we should have found the best candidate, so we keep it
+        G = bestG;
+    end
+    
     % We successfully added a new node! Reset try counter and go for next
     % node
     nTries = 0;

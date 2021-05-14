@@ -20,6 +20,12 @@ G.Edges.L(idxParentEdge) = pdist2(G.Nodes.Coord{idxParentNode}, G.Nodes.Coord{id
 G.Edges.L(idxOtherChildEdge) = pdist2(G.Nodes.Coord{idxBifPoint}, G.Nodes.Coord{idxChildEdgeEndNode});
 G.Edges.L(idxLastAddedEdge) = pdist2( G.Nodes.Coord{idxBifPoint}, ...
     G.Nodes.Coord{ strcmp(G.Nodes.Name, G.Edges.EndNodes(idxLastAddedEdge, 2)) });
+
+% update middle coordinates
+G.Edges.middle{idxParentEdge} = (G.Nodes.Coord{idxParentNode} + G.Nodes.Coord{idxBifPoint})/2;
+G.Edges.middle{idxOtherChildEdge} = (G.Nodes.Coord{idxBifPoint} + G.Nodes.Coord{idxChildEdgeEndNode})/2;
+G.Edges.middle{idxLastAddedEdge} = (G.Nodes.Coord{idxBifPoint} + G.Nodes.Coord{ strcmp(G.Nodes.Name, G.Edges.EndNodes(idxLastAddedEdge, 2))})/2;
+
 end
 
 %% First step: go up the tree, adding Qterm to all edges above and updating R_star
