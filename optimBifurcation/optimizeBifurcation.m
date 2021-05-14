@@ -52,7 +52,7 @@ tmpG = G;
 fun = @(x)moveBif(x, tmpG, nameNewEdge, visc, deltaP, rotParam);
 const = @(x)constraintCircle(x, circleParam, Lmin);
 
-options = optimoptions('fmincon');%,'Display','iter','Algorithm','sqp');%, 'OptimalityTolerance', 1e-17, 'FiniteDifferenceStepSize', 1e-7);
+options = optimoptions('fmincon','Display','off');
 problem.options = options;
 problem.solver = 'fmincon';
 problem.objective = fun;

@@ -15,6 +15,10 @@ function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, 
 % ADD NODES AND EDGES DESCRIPTION
 % ----------------------------------
 warning('off');
+%% Toolbox flags
+flagParallel = 1; % Turn this to 0 if you don't have the parallel computing toolbox
+flagOptim = 1; % Turn this to 0 if you don't have the optimization toolbox
+
 %% Hardcoded parameters
 % initiate a max number of tries to place a new point to avoid infinite loops
 maxTries = 1000;
@@ -22,7 +26,6 @@ visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
 nClosest = 5; % will be 5 or 10 in the future
 
-flagParallel = 1;
 %% Initiate graph
 G = digraph;
 Qterm = Qperf/Nterm; %Qperf = Nterm * Qterm
@@ -65,7 +68,7 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
         % loop on these branches
         Futures(1:numel(closestBranchesIdx)) = parallel.FevalFuture; 
         for i = 1:numel(closestBranchesIdx)
-            Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin);
+            Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin, flagOptim);
         end
 
         for i =1:numel(closestBranchesIdx)
@@ -79,10 +82,10 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
         % loop on these branches
         score = inf;
         for i = 1:numel(closestBranchesIdx)
-
+            fprintf('============ Trying candidate branch %i/%i ============\n', i, numel(closestBranchesIdx))
             [tmpG, candidateNodeName] = addVascNode(G, coord);
             edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-            tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP, Lmin);
+            tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP, Lmin, flagOptim);
             tmpScore = costFunction(tmpG);
             if tmpScore < score
                 bestG = tmpG;
