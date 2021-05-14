@@ -16,8 +16,6 @@ EndNodes = {source, target};
 Name = {[source, '-' target]};
 r = 1;
 Q = Q_in;
-R = 0;
-P = 0;
 L = pdist2(G.Nodes.Coord{idxSource}, G.Nodes.Coord{idxTarget});
 
 if G.Nodes.isTermNode(idxTarget)
@@ -27,7 +25,7 @@ else
 end    
 
 middle{1} = (G.Nodes.Coord{idxSource} + G.Nodes.Coord{idxTarget})/2;
-edgeProp = table(EndNodes, Name, r, Q, R, R_star, P, L, middle);
+edgeProp = table(EndNodes, Name, r, Q, R_star, L, middle);
 G = addedge(G, edgeProp);
 
 %% Update nodes properties
