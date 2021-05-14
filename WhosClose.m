@@ -28,5 +28,5 @@ function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin)
     if isempty(table_nointersect)
         closestBranchesIdx=0;
     else
-        closestBranchesIdx = table_nointersect(1,1:min(numel(sortingIdx), nClosest));
+        closestBranchesIdx = table_nointersect(1,1:min(size(table_nointersect, 2), nClosest));
     end
