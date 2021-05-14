@@ -30,9 +30,10 @@ We used 200x200x200 matrices for rendering the volume. Going higher will require
 
 ## Basics
 
-After adding the main directory and the sub-directories to your path, running `showGraph.m` will generate a very simple tree with N=5 terminal nodes in a 1.6mm-sided cube, the process should take less than a minute, even without the parallel toolbox.
-The 2D projection from Matlab and the 3D volumetric rendering will be performed. If this last step fails, reduce the values of `X`, `Y` and `Z` parameters.
++ After adding the main directory and the sub-directories to your path, running `showGraph.m` will generate a very simple tree with N=5 terminal nodes in a 1.6mm-sided cube, the process should take less than a minute, even without the parallel toolbox.
 
-You can then increase N to generate more complicated trees.
++ The 2D projection from Matlab and the 3D volumetric rendering will be performed. If this last step fails, reduce the values of `X`, `Y` and `Z` parameters.
+
++ You can then increase N to generate more complicated trees.
 
 ---
