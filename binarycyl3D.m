@@ -77,5 +77,8 @@ end
 BinaryMat(BinaryMat>0)=1;
 
 %Plot 3d
-% figure(),isosurface(BinaryMat(:,:,:),0.5), colormap hot,axis([0 Nx 0 Ny 0 Nz])
-figure; volshow(BinaryMat, 'BackgroundColor', 'white', 'Colormap', repmat([1,0,0], [256,1]));  
+figure();
+% isosurface(BinaryMat(:,:,:),0.5), colormap hot ,axis([0 Nx 0 Ny 0 Nz]);
+% p = patch(isosurface(BinaryMat(:,:,:),0.5));
+% p.FaceColor = 'red';
+volshow(BinaryMat, 'BackgroundColor', 'white', 'Colormap', repmat([1,0,0], [256,1]));  
