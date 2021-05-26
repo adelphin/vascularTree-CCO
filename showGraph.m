@@ -1,4 +1,5 @@
-N = 15;
+rng(2)
+N = 2;
 X = 200; 
 Y = 200;
 Z = 200;
@@ -8,7 +9,7 @@ FOVz = 3000e-6;
 
 %% 
 tic
-G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/100000000, 133000000, 83000000 , N, 400e-6);
+G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/100000000, 133000000, 83000000 , N, FOVx/10, FOVx);
 toc
 % G.Edges.r = 2e-6*ones(size(G.Edges.r));
 %%

@@ -1,4 +1,4 @@
-function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,exposant)
+function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax)
 
 %Returns a list of the middles' indexes that are the closest to coord
 
@@ -16,13 +16,24 @@ function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,expo
     sortedDistances = sortedDistances(G.Edges.L(sortingIdx)>2*Lmin);
     sortingIdx = sortingIdx(G.Edges.L(sortingIdx)>2*Lmin);
     
-    sortingIdx = sortingIdx(sortedDistances>Lmin/(N_actuel^exposant));
-    sortedDistances = sortedDistances(sortedDistances>Lmin/(N_actuel^exposant));
-    sortingIdx = sortingIdx(sortedDistances<Lmax/(N_actuel^exposant));
-
+    sortingIdx = sortingIdx(sortedDistances>Lmin);
+    sortedDistances = sortedDistances(sortedDistances>Lmin);
+    sortingIdx = sortingIdx(sortedDistances<Lmax);
+    
+    C2 = coord;
+    circumR = zeros(1, numel(sortingIdx));
+    for i =1:numel(sortingIdx)
+        P1 = G.Nodes.Coord{strcmp(G.Nodes.Name, G.Edges.EndNodes(sortingIdx(i), 1))};
+        C1 = G.Nodes.Coord{strcmp(G.Nodes.Name, G.Edges.EndNodes(sortingIdx(i), 2))};
+        [~, circParam] = getCircumCircleParameters(P1, C1, C2);
+        circumR(i) = circParam.r;
+    end
+    
+    sortingIdx = sortingIdx(circumR<(Lmin+Lmax));
+    
     %Testing all sorted branches for intersection
     sortedBool = zeros(1,numel(sortingIdx));
-    for i = 1:numel(sortingIdx)
+    parfor i = 1:numel(sortingIdx)        
         sortedBool(i) = DoesItIntersect(G, coord, G.Edges.Name(sortingIdx(i)));
     end
     %we still have to delete the zeroes in : 

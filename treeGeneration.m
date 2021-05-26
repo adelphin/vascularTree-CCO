@@ -1,5 +1,4 @@
 function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax)
-rng(1);
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -61,7 +60,9 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     %end
     
     N_actuel = sum(G.Nodes.isTermNode);
-    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,exposant);
+    %Lmin = Lmin/(N_actuel^exposant);
+%     Lmax = Lmax/(N_actuel^exposant);
+    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax);
     if closestBranchesIdx == 0
         continue
     end
