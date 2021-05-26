@@ -1,20 +1,28 @@
-N = 7;
-X = 100; 
-Y = 100;
-Z = 300;
-
-% G = genTemplateGraph(N, X, Y, Z); % creates G
-% cyl = graph2cylinders(G);
-% 
-% [BinaryMat] = binarycyl3D(X, Y, Z, cyl.startPoints, cyl.endPoints, cyl.radii);
-
+N = 15;
+X = 200; 
+Y = 200;
+Z = 200;
+FOVx = 3000e-6;
+FOVy = 3000e-6;
+FOVz = 3000e-6;
 
 %% 
-G = treeGeneration([X, Y, Z], [X/2,Y/2,Z], 1, 1, 1, 40, 100);
-
+tic
+G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/100000000, 133000000, 83000000 , N, 400e-6);
+toc
+% G.Edges.r = 2e-6*ones(size(G.Edges.r));
 %%
-
-G.Edges.r(:) = linspace(5,1,numedges(G));
+figure;
+coords = cell2mat(G.Nodes.Coord);
+rfact = 10/max(G.Edges.r);
+plot(G, 'XData', coords(:,1), 'YData', coords(:,2),'ZData', coords(:,3), 'LineWidth',G.Edges.r*rfact)
+xlim([0, FOVx])
+ylim([0, FOVy])
+zlim([0, FOVz])
+pbaspect([1,1,1])
 %%
+tic
 cyl = graph2cylinders(G);
-[BinaryMat] = binarycyl3D(X, Y, Z, cyl.startPoints, cyl.endPoints, cyl.radii);
+f = 1;
+[BinaryMat] = binarycyl3D(X, Y, Z, f*FOVx, f*FOVy, f*FOVz, cyl.startPoints, cyl.endPoints, cyl.radii);
+toc

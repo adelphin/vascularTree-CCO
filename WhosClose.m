@@ -4,7 +4,6 @@ function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,expo
 
     % compute distance to mid-branches
     distances = pdist2(coord, cell2mat(G.Edges.middle));
-
     % remove points that are too close to branches
     
     % keep only the nClosest branches (or less if less than nClosest
@@ -13,9 +12,14 @@ function closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin,Lmax,N_actuel,expo
     %sortingIdx = sortingIdx(sortedDistances>Lmin);
     %sortedDistances = sortedDistances(sortedDistances>Lmin);
     %sortingIdx = sortingIdx(sortedDistances<Lmax);
+    
+    sortedDistances = sortedDistances(G.Edges.L(sortingIdx)>2*Lmin);
+    sortingIdx = sortingIdx(G.Edges.L(sortingIdx)>2*Lmin);
+    
     sortingIdx = sortingIdx(sortedDistances>Lmin/(N_actuel^exposant));
     sortedDistances = sortedDistances(sortedDistances>Lmin/(N_actuel^exposant));
     sortingIdx = sortingIdx(sortedDistances<Lmax/(N_actuel^exposant));
+
     %Testing all sorted branches for intersection
     sortedBool = zeros(1,numel(sortingIdx));
     for i = 1:numel(sortingIdx)

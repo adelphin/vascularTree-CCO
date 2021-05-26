@@ -22,7 +22,7 @@ warning('off');
 maxTries = 1000;
 visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
-nClosest = 1; % will be 5 or 10 in the future
+nClosest = 5; % will be 5 or 10 in the future
 %exponential decay of Lmin
 exposant = 0.4;
 
@@ -51,10 +51,12 @@ G = updateTree(G, 'n0-n1', visc, deltaP);
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
+    fprintf('======================== Placing terminal node %i ========================\n', sum(G.Nodes.isTermNode)+1)
     nTries = nTries+1;
     coord = createRandCoord(spaceDimensions);
+    
     % Check if not too close from other nodes / branch (compare with  Lmin)
-    % if trop près
+    % if too close
     % continue % ends this while iteration and passes to the next
     %end
     
@@ -65,23 +67,20 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     end
     
     % loop on these branches
-    score = inf;
+%     score = inf;
+    Futures(1:numel(closestBranchesIdx)) = parallel.FevalFuture; 
     for i = 1:numel(closestBranchesIdx)
-        
-        [tmpG, candidateNodeName] = addVascNode(G, coord);
-        edgeName = tmpG.Edges.Name{closestBranchesIdx(i)};
-        tmpG = branchNode(tmpG, edgeName, candidateNodeName, Qterm, visc, deltaP);
-        tmpScore = costFunction(tmpG);
-        if tmpScore < score
-            bestG = tmpG;
-            score = tmpScore;
-        end
+
+        Futures(i) = parfeval(@findBestBif, 2, G, coord, closestBranchesIdx(i), Qterm, visc, deltaP, Lmin);
     end
     
-    % There we should have found the best candidate, so we keep it
-    G = bestG;
-    
-    
+    for i =1:numel(closestBranchesIdx)
+        [~, score] = Futures(i).fetchOutputs;
+    end
+
+    [~, idxMin] = min(score);
+    [G, ~] = Futures(idxMin).fetchOutputs;
+            
     % We successfully added a new node! Reset try counter and go for next
     % node
     nTries = 0;
