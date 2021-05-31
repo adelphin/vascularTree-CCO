@@ -22,7 +22,7 @@ boolean = 0;
             P3 = G.Nodes.Coord{strcmp(G.Nodes.Name, nsource)};
             ntarget = G.Edges.EndNodes{i,2};
             P4 = G.Nodes.Coord{strcmp(G.Nodes.Name, ntarget)};
-            R_future = 1e-6;
+            R_future = G.Edges.r(idxEdge);
 
             dist = DistBetween2Segment(coord, P2, P3, P4);
             boolean = dist <= rayon + R_future;
