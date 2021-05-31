@@ -1,4 +1,4 @@
-function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin)
+function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax)
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -21,7 +21,7 @@ flagOptim = 1; % Turn this to 0 if you don't have the optimization toolbox
 
 %% Hardcoded parameters
 % initiate a max number of tries to place a new point to avoid infinite loops
-maxTries = 1000;
+maxTries = 100000;
 visc = 0.036; % 36mPa.sec
 % number of closest branches to consider when placing a new node
 nClosest = 5; % will be 5 or 10 in the future
@@ -51,7 +51,9 @@ G = updateTree(G, 'n0-n1', visc, deltaP);
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
-    fprintf('======================== Placing terminal node %i ========================\n', sum(G.Nodes.isTermNode)+1)
+    if nTries ==0
+        fprintf('======================== Placing terminal node %i ========================\n', sum(G.Nodes.isTermNode)+1)
+    end
     nTries = nTries+1;
     coord = createRandCoord(spaceDimensions);
     
@@ -59,7 +61,7 @@ while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
     % if too close
     % continue % ends this while iteration and passes to the next
     %end
-    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin);
+    closestBranchesIdx = WhosClose(G,coord,nClosest,Lmin, Lmax);
     if closestBranchesIdx == 0
         continue
     end
