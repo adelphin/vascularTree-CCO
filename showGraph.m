@@ -10,7 +10,7 @@ plotFlag = 1;
 
 %% 
 tic
-G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/10000000, 133000000, 83000000 , N, 200e-6);
+G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/10000000, 133000000, 83000000 , N, 200e-6, 800e-6);
 toc
 
 %%
