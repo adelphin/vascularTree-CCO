@@ -1,0 +1,8 @@
+spaceDimensions     = [1600, 1600, 1600]*1e-6;
+perfPosition        = [800, 800, 1600]*1e-6;
+Qperf               = 8.33/1e7;
+Pperf               = 133 * 1e6;
+Pterm               = 83 *1e-6;
+Nterm               = 5;
+Lmin                = 200*1e-6;
+Lmax                = 800*1e-6;

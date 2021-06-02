@@ -1,4 +1,4 @@
-function G = treeGeneration(spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax)
+function G = treeGeneration(pathParamFile)
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -18,6 +18,9 @@ warning('off');
 %% Toolbox flags
 flagParallel = 1; % Turn this to 0 if you don't have the parallel computing toolbox
 flagOptim = 1; % Turn this to 0 if you don't have the optimization toolbox
+
+%% Parameters parsing
+[spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax] = readTreeParameters(pathParamFile);
 
 %% Hardcoded parameters
 % initiate a max number of tries to place a new point to avoid infinite loops

@@ -1,22 +1,20 @@
-N = 5;
-X = 200; 
-Y = 200;
-Z = 200;
-FOVx = 1600e-6;
-FOVy = 1600e-6;
-FOVz = 1600e-6;
+path = 'parFiles/exampleGraph.txt';
 
 plotFlag = 1;
 
 %% 
 tic
-G = treeGeneration([FOVx, FOVy, FOVz], [FOVx/2, FOVy/2, FOVz], 8.33/10000000, 133000000, 83000000 , N, 200e-6, 800e-6);
+G = treeGeneration(path);
 toc
 
 %%
+spaceDimensions = readTreeParameters(path);
+X = 200; 
+Y = 200; 
+Z = 200;
 if plotFlag
-    plotGraph(G, FOVx, FOVy, FOVz);
+    plotGraph(G, spaceDimensions(1), spaceDimensions(2), spaceDimensions(3));
     tic
-    [~] = plotCylinders(G, FOVx, FOVy, FOVz, X, Y, Z);
+    [~] = plotCylinders(G, spaceDimensions(1), spaceDimensions(2), spaceDimensions(3), X, Y, Z);
     toc
 end    
