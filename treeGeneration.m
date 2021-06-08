@@ -1,4 +1,4 @@
-function G = treeGeneration(pathParamFile)
+function G = treeGeneration(pathParamFile, existingGraph)
 % ----------------------------------
 % Generates a graph object representing a vascular tree
 % Inputs:
@@ -20,6 +20,9 @@ flagParallel = 1; % Turn this to 0 if you don't have the parallel computing tool
 flagOptim = 1; % Turn this to 0 if you don't have the optimization toolbox
 
 %% Parameters parsing
+if nargin < 2
+    existingGraph = [];
+end
 [spaceDimensions, perfPosition, Qperf, Pperf, Pterm, Nterm, Lmin, Lmax] = readTreeParameters(pathParamFile);
 
 %% Hardcoded parameters
@@ -46,11 +49,49 @@ G = addVascNode(G, perfPosition, 0, 'n0');
 % here the point can be anywhere in the volume but that might not be true
 % for further use
 coord = createRandCoord(spaceDimensions);
-G = addVascNode(G, coord);
-% G = addnode(G, 'n1');
-% G.Nodes.Coord{2}=coord;
-G = addVascEdge(G, 'n0', 'n1', Qterm); %Qterm, so that after N terminal nodes we have Qperf
-G = updateTree(G, 'n0-n1', visc, deltaP);
+nTries = 0;
+placed = 0;
+if ~isempty(existingGraph)
+    while ~placed && nTries < maxTries
+        % test for collision on existing tree
+        placed = 1;
+        for i = 1:numedges(existingGraph)
+            % get branch from existing tree
+            nsource = existingGraph.Edges.EndNodes{i,1};
+            P3 = existingGraph.Nodes.Coord{strcmp(existingGraph.Nodes.Name, nsource)};
+            ntarget = existingGraph.Edges.EndNodes{i,2};
+            P4 = existingGraph.Nodes.Coord{strcmp(existingGraph.Nodes.Name, ntarget)};
+            r_test = existingGraph.Edges.r(i);
+            % compare to perfusion branch
+            R_future = existingGraph.Edges.r(1);
+            
+            % test for collision
+            dist = DistBetween2Segment(G.Nodes.Coord{1}, coord, P3, P4);
+            boolean = dist <= r_test + R_future;
+            if boolean == 1
+                % collision found, try other coordinates
+                coord = createRandCoord(spaceDimensions);
+                nTries = nTries + 1;
+                placed = 0;
+                break           %as soon as criteria is broken, we stop
+            else
+                continue
+            end
+        end
+    end
+else
+    placed = 1;
+end
+if placed == 1
+    G = addVascNode(G, coord);
+    % G = addnode(G, 'n1');
+    % G.Nodes.Coord{2}=coord;
+    G = addVascEdge(G, 'n0', 'n1', Qterm); %Qterm, so that after N terminal nodes we have Qperf
+    G = updateTree(G, 'n0-n1', visc, deltaP);
+else
+    error('Could not place first branch, check perfusion point position')
+end
+
 %% Loop over number of required terminal nodes
 nTries = 0;
 while (sum(G.Nodes.isTermNode) < Nterm && nTries <= maxTries)
