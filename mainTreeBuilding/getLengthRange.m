@@ -18,7 +18,9 @@ LmaxRange(LmaxRange < minLmax) = minLmax;
 bifNodes = G.Nodes.Name(~logical(G.Nodes.isTermNode));
 
 % compute the distance from bif to root
-bifDistances = distances(G, 'n0', bifNodes);
+% root is not necessarily 'n0'
+rootIdx = cellfun(@isempty, G.Nodes.parentNode); % Always 1 ?
+bifDistances = distances(G, G.Nodes.Name{rootIdx}, bifNodes);
 
 % knowing that distance, attribute to each edge a Lmin and Lmax
 % if bifPoints are n0, n3, n5, then edges are ordered by parent nodes as n0, n3, n3, n5, n5

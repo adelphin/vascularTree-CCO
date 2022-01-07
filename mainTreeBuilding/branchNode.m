@@ -1,8 +1,10 @@
-function G = branchNode(G, edgeName, nodeName, Qterm, visc, deltaP, Lmin, flagOptim)
+function G = branchNode(G, edgeName, nodeName, Qterm, visc, deltaP, Lmin, flagOptim, flagUpdate)
 
 %Connects nodeName to the middle of edgeName
 %Deletes the old edge and creates the three new ones 
-
+if nargin < 9
+    flagUpdate = 1;
+end
 if nargin<8
     flagOptim = 1;
 end
@@ -35,8 +37,9 @@ if flagOptim
     G.Nodes.Coord{idxBif} = coordBestBif;
 end
 
-G = updateTree(G, [midName, '-', nodeName], visc, deltaP);
-
+if flagUpdate
+    G = updateTree(G, [midName, '-', nodeName], visc, deltaP);
+end
 end
 
 

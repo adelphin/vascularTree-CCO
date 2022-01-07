@@ -10,10 +10,10 @@ rfactV = 10/max(vG.Edges.r);
 figure;
 subplot(4,2,[1,3,5,7])
 plot(aG, 'XData', coordsA(:,1), 'YData', coordsA(:,2), 'ZData', coordsA(:,3), 'LineWidth', aG.Edges.r*rfactA, ...
-    'EdgeColor', 'r', 'NodeColor', 'r', 'EdgeAlpha',0.9)
+    'EdgeColor', 'r', 'NodeColor', 'r', 'EdgeAlpha',0.9, 'ArrowSize', 0)
 hold on
 plot(vG, 'XData', coordsV(:,1), 'YData', coordsV(:,2), 'ZData', coordsV(:,3), 'LineWidth', vG.Edges.r*rfactV, ...
-    'EdgeColor', 'b', 'NodeColor', 'b', 'EdgeAlpha',0.9)
+    'EdgeColor', 'b', 'NodeColor', 'b', 'EdgeAlpha',0.9, 'ArrowSize', 0)
 xlim([0, FOVx])
 ylim([0, FOVy])
 zlim([0, FOVz])

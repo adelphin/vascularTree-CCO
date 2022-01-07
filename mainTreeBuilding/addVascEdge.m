@@ -14,7 +14,7 @@ idxTarget = find(strcmp(G.Nodes.Name, target));
 %% Add the edge to the graph and create its parameters
 EndNodes = {source, target};
 Name = {[source, '-' target]};
-r = 1;
+r = 5e-6;
 Q = Q_in;
 L = pdist2(G.Nodes.Coord{idxSource}, G.Nodes.Coord{idxTarget});
 
