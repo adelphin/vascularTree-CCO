@@ -1,7 +1,7 @@
 ---
 # vascularTree - Constrained Constructive Optimization (CCO) 
 
-This repo contains code that aims at generating vascular trees following the work from Hamarneth *et al*. 2010 and Linninger *et al*. 2019
+This repo contains code that aims at generating vascular trees following the work from Hamarneh et al. 2010 (https://doi.org/10.1016/j.compmedimag.2010.06.002) and Linninger et al. 2019 (https://doi.org/10.1016/j.compbiomed.2019.05.004)
 
 ---
 
